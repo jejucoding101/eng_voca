@@ -21,16 +21,25 @@ export function renderSettings() {
 
     <div class="settings-group">
       <div class="settings-group-title">Gemini API</div>
+      ${user.role === 'admin' ? `
       <div class="settings-item" style="flex-direction:column;align-items:stretch;gap:var(--sp-md)">
         <div class="settings-item-label">
-          <h4>API 키</h4>
-          <p>${currentApiKey ? '✅ 설정됨' : '⚠️ 미설정'}</p>
+          <h4>API 키 (관리자 전용)</h4>
+          <p>${currentApiKey ? '✅ 설정됨 — 모든 사용자 공유' : '⚠️ 미설정'}</p>
         </div>
         <div class="flex gap-sm">
           <input type="password" class="input" id="api-key-input" placeholder="Gemini API 키 입력" value="${currentApiKey || ''}" style="flex:1" />
           <button class="btn btn-primary" id="save-key-btn">저장</button>
         </div>
       </div>
+      ` : `
+      <div class="settings-item">
+        <div class="settings-item-label">
+          <h4>API 키</h4>
+          <p>${currentApiKey ? '✅ 관리자가 설정한 키 사용 중' : '⚠️ 관리자에게 API 키 설정을 요청하세요'}</p>
+        </div>
+      </div>
+      `}
     </div>
 
     <div class="settings-group">
@@ -49,24 +58,11 @@ export function renderSettings() {
     </div>
 
     <div class="settings-group">
-      <div class="settings-group-title">서버 설정</div>
-      <div class="settings-item" style="flex-direction:column;align-items:stretch;gap:var(--sp-md)">
-        <div class="settings-item-label">
-          <h4>Apps Script URL</h4>
-        </div>
-        <div class="flex gap-sm">
-          <input type="url" class="input" id="gas-url-input" value="${gasUrl}" style="flex:1;font-size:var(--fs-xs)" />
-          <button class="btn btn-secondary" id="save-url-btn">저장</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="settings-group">
       <div class="settings-group-title">계정</div>
       <div class="settings-item">
         <div class="settings-item-label">
           <h4>${user.nickname}</h4>
-          <p>${user.email} · ${user.role === 'admin' ? '관리자' : '학습자'}</p>
+          <p>${user.username} · ${user.role === 'admin' ? '관리자' : '학습자'}</p>
         </div>
       </div>
       <button class="btn btn-danger btn-full mt-md" id="logout-btn">로그아웃</button>
@@ -74,25 +70,22 @@ export function renderSettings() {
   `;
 
   // API 키 저장
-  $('#save-key-btn').addEventListener('click', async () => {
-    const key = $('#api-key-input').value.trim();
-    if (!key) { showToast('API 키를 입력해주세요.', 'error'); return; }
-    setApiKey(key);
-    const res = await api.saveApiKey(user.user_id, key);
-    showToast(res.success ? 'API 키가 저장되었습니다.' : res.message, res.success ? 'success' : 'error');
-  });
+  // API 키 저장 (관리자만)
+  if (user.role === 'admin' && $('#save-key-btn')) {
+    $('#save-key-btn').addEventListener('click', async () => {
+      const key = $('#api-key-input').value.trim();
+      if (!key) { showToast('API 키를 입력해주세요.', 'error'); return; }
+      setApiKey(key);
+      const res = await api.saveApiKey(user.user_id, key);
+      showToast(res.success ? 'API 키가 저장되었습니다.' : res.message, res.success ? 'success' : 'error');
+    });
+  }
 
   // TTS 속도
   $('#tts-rate-slider').addEventListener('input', (e) => {
     const rate = parseFloat(e.target.value);
     $('#rate-value').textContent = rate + 'x';
     setTtsRate(rate);
-  });
-
-  // GAS URL 저장
-  $('#save-url-btn').addEventListener('click', () => {
-    const url = $('#gas-url-input').value.trim();
-    if (url) { setGasUrl(url); showToast('URL이 저장되었습니다.', 'success'); }
   });
 
   // 로그아웃

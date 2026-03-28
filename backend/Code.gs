@@ -250,6 +250,14 @@ function adminGetUsers(params) {
 // ================================================================
 function saveApiKey(payload) {
   const { user_id, api_key } = payload;
+  
+  // 관리자만 API 키 설정 가능
+  const users = getSheetData(SHEET_USERS);
+  const requestUser = users.find(u => u.user_id === user_id);
+  if (!requestUser || requestUser.role !== 'admin') {
+    return { success: false, message: '관리자만 API 키를 설정할 수 있습니다.' };
+  }
+  
   const sheet = getSheet(SHEET_USERS);
   const data = sheet.getDataRange().getValues();
   const headers = data[0];
@@ -257,22 +265,21 @@ function saveApiKey(payload) {
 
   for (let i = 1; i < data.length; i++) {
     if (data[i][0] === user_id) {
-      // 간단 XOR 암호화
       const encrypted = simpleEncrypt(api_key, user_id);
       sheet.getRange(i + 1, keyCol).setValue(encrypted);
       invalidateCache(SHEET_USERS);
-      return { success: true, message: 'API 키가 저장되었습니다.' };
+      return { success: true, message: 'API 키가 저장되었습니다. 모든 사용자가 이 키를 공유합니다.' };
     }
   }
   return { success: false, message: '사용자를 찾을 수 없습니다.' };
 }
 
 function getApiKeyAction(params) {
-  const { user_id } = params;
+  // 관리자의 API 키를 모든 사용자가 공유
   const users = getSheetData(SHEET_USERS);
-  const user = users.find(u => u.user_id === user_id);
-  if (!user || !user.gemini_api_key) return { success: true, api_key: '' };
-  const decrypted = simpleDecrypt(user.gemini_api_key, user_id);
+  const admin = users.find(u => u.role === 'admin');
+  if (!admin || !admin.gemini_api_key) return { success: true, api_key: '' };
+  const decrypted = simpleDecrypt(admin.gemini_api_key, admin.user_id);
   return { success: true, api_key: decrypted };
 }
 

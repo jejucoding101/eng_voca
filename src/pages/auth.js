@@ -94,12 +94,10 @@ async function handleLogin() {
     if (res.success) {
       setSession(res.user);
 
-      // API 키 가져오기
-      if (res.user.has_api_key) {
-        const keyRes = await api.getApiKey(res.user.user_id);
-        if (keyRes.success && keyRes.api_key) {
-          setApiKey(keyRes.api_key);
-        }
+      // 관리자 공유 API 키 가져오기
+      const keyRes = await api.getApiKey(res.user.user_id);
+      if (keyRes.success && keyRes.api_key) {
+        setApiKey(keyRes.api_key);
       }
 
       showToast(`${res.user.nickname}님, 환영합니다! 🎉`, 'success');
