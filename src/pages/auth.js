@@ -21,15 +21,15 @@ export function renderAuth() {
 
       ${!savedUrl ? `
       <div class="card mb-xl" id="setup-section">
-        <h3 style="font-size: var(--fs-md); margin-bottom: var(--sp-md);">⚙️ 초기 설정</h3>
+        <h3 style="font-size: var(--fs-md); margin-bottom: var(--sp-md);">⚙️ 서버 변경</h3>
         <p style="font-size: var(--fs-xs); color: var(--text-secondary); margin-bottom: var(--sp-lg);">
-          Google Apps Script 웹앱 URL을 입력해주세요.
+          다른 Apps Script URL을 사용하려면 여기에 입력하세요.
         </p>
         <div class="input-group">
           <label>Apps Script URL</label>
           <input type="url" class="input" id="gas-url-input" placeholder="https://script.google.com/macros/s/..." />
         </div>
-        <button class="btn btn-secondary btn-full" id="save-url-btn">URL 저장</button>
+        <button class="btn btn-secondary btn-full" id="save-url-btn">URL 변경</button>
       </div>
       ` : ''}
 
@@ -42,7 +42,7 @@ export function renderAuth() {
           <label>비밀번호</label>
           <input type="password" class="input" id="login-password" placeholder="비밀번호를 입력하세요" autocomplete="current-password" />
         </div>
-        <button class="btn btn-primary btn-full btn-lg" id="login-btn" ${!savedUrl ? 'disabled' : ''}>
+        <button class="btn btn-primary btn-full btn-lg" id="login-btn">
           로그인
         </button>
       </div>
