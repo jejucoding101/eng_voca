@@ -27,8 +27,8 @@ export async function renderAdmin() {
         <input type="text" class="input" id="new-nickname" placeholder="닉네임" />
       </div>
       <div class="input-group">
-        <label>이메일</label>
-        <input type="email" class="input" id="new-email" placeholder="이메일" />
+        <label>아이디</label>
+        <input type="text" class="input" id="new-username" placeholder="아이디" />
       </div>
       <div class="input-group">
         <label>초기 비밀번호</label>
@@ -48,10 +48,10 @@ export async function renderAdmin() {
 
   $('#add-user-btn').addEventListener('click', async () => {
     const nickname = $('#new-nickname').value.trim();
-    const email = $('#new-email').value.trim();
+    const username = $('#new-username').value.trim();
     const password = $('#new-password').value;
 
-    if (!nickname || !email || !password) {
+    if (!nickname || !username || !password) {
       showToast('모든 필드를 입력해주세요.', 'error');
       return;
     }
@@ -60,12 +60,12 @@ export async function renderAdmin() {
     btn.disabled = true;
     btn.textContent = '추가 중...';
 
-    const res = await api.adminAddUser(user.user_id, email, password, nickname);
+    const res = await api.adminAddUser(user.user_id, username, password, nickname);
     showToast(res.message, res.success ? 'success' : 'error');
 
     if (res.success) {
       $('#new-nickname').value = '';
-      $('#new-email').value = '';
+      $('#new-username').value = '';
       $('#new-password').value = '1234';
       loadUsers(user);
     }
@@ -85,7 +85,7 @@ async function loadUsers(admin) {
       <div class="admin-user-card">
         <div class="admin-user-info">
           <h4>${u.nickname} ${u.role === 'admin' ? '<span class="badge badge-gold">관리자</span>' : ''}</h4>
-          <p>${u.email} · Lv.${u.level || 1} · 가입: ${u.joined_date ? new Date(u.joined_date).toLocaleDateString('ko') : '-'}</p>
+          <p>${u.username} · Lv.${u.level || 1} · 가입: ${u.joined_date ? new Date(u.joined_date).toLocaleDateString('ko') : '-'}</p>
         </div>
         ${u.role !== 'admin' ? `<button class="btn btn-ghost" data-delete-user="${u.user_id}" data-name="${u.nickname}" style="color:var(--error);font-size:18px">🗑️</button>` : ''}
       </div>

@@ -79,7 +79,7 @@ function getSheet(name) {
 function setupSheets() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheets = [
-    { name: SHEET_USERS, headers: ['user_id','email','password_hash','nickname','role','gemini_api_key','total_score','current_streak','max_streak','level','last_study_date','joined_date'] },
+    { name: SHEET_USERS, headers: ['user_id','username','password_hash','nickname','role','gemini_api_key','total_score','current_streak','max_streak','level','last_study_date','joined_date'] },
     { name: SHEET_WORDSETS, headers: ['set_id','user_id','set_name','created_date','word_count'] },
     { name: SHEET_WORDS, headers: ['word_id','set_id','user_id','word','pronunciation','part_of_speech','meaning_ko','example_sentence','derivatives'] },
     { name: SHEET_PROGRESS, headers: ['progress_id','user_id','word_id','correct_count','wrong_count','mastery_level','ease_factor','interval_days','next_review_date','last_studied'] },
@@ -99,7 +99,7 @@ function setupSheets() {
   if (usersData.length === 0) {
     const sheet = getSheet(SHEET_USERS);
     const adminId = generateId('USR');
-    sheet.appendRow([adminId, 'admin@vocasnap.com', hashPassword('admin1234'), '관리자', 'admin', '', 0, 0, 0, 1, '', new Date().toISOString()]);
+    sheet.appendRow([adminId, 'karisuma', hashPassword('7449547'), '관리자', 'admin', '', 0, 0, 0, 1, '', new Date().toISOString()]);
     invalidateCache(SHEET_USERS);
   }
 }
@@ -154,11 +154,11 @@ function invalidateCaches(names) {
 // 인증 (로그인만 — 사용자 추가는 관리자 전용)
 // ================================================================
 function login(payload) {
-  const { email, password } = payload;
-  if (!email || !password) return { success: false, message: '이메일과 비밀번호를 입력해주세요.' };
+  const { username, password } = payload;
+  if (!username || !password) return { success: false, message: '아이디와 비밀번호를 입력해주세요.' };
 
   const data = getSheetData(SHEET_USERS);
-  const user = data.find(u => u.email === email);
+  const user = data.find(u => u.username === username);
   if (!user) return { success: false, message: '등록되지 않은 계정입니다. 관리자에게 문의하세요.' };
   if (user.password_hash !== hashPassword(password)) return { success: false, message: '비밀번호가 일치하지 않습니다.' };
 
@@ -166,7 +166,7 @@ function login(payload) {
     success: true,
     user: {
       user_id: user.user_id,
-      email: user.email,
+      username: user.username,
       nickname: user.nickname,
       role: user.role,
       total_score: user.total_score || 0,
@@ -183,18 +183,18 @@ function login(payload) {
 // 관리자: 사용자 관리
 // ================================================================
 function adminAddUser(payload) {
-  const { admin_id, email, password, nickname } = payload;
-  if (!admin_id || !email || !password || !nickname) return { success: false, message: '필수 정보가 누락되었습니다.' };
+  const { admin_id, username, password, nickname } = payload;
+  if (!admin_id || !username || !password || !nickname) return { success: false, message: '필수 정보가 누락되었습니다.' };
 
   const users = getSheetData(SHEET_USERS);
   const admin = users.find(u => u.user_id === admin_id && u.role === 'admin');
   if (!admin) return { success: false, message: '관리자 권한이 필요합니다.' };
 
-  if (users.find(u => u.email === email)) return { success: false, message: '이미 등록된 이메일입니다.' };
+  if (users.find(u => u.username === username)) return { success: false, message: '이미 등록된 아이디입니다.' };
 
   const sheet = getSheet(SHEET_USERS);
   const userId = generateId('USR');
-  sheet.appendRow([userId, email, hashPassword(password), nickname, 'member', '', 0, 0, 0, 1, '', new Date().toISOString()]);
+  sheet.appendRow([userId, username, hashPassword(password), nickname, 'member', '', 0, 0, 0, 1, '', new Date().toISOString()]);
   invalidateCache(SHEET_USERS);
 
   return { success: true, message: nickname + ' 계정이 생성되었습니다.', user_id: userId };
@@ -234,7 +234,7 @@ function adminGetUsers(params) {
 
   const result = users.map(u => ({
     user_id: u.user_id,
-    email: u.email,
+    username: u.username,
     nickname: u.nickname,
     role: u.role,
     total_score: u.total_score || 0,

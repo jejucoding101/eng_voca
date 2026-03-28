@@ -35,8 +35,8 @@ export function renderAuth() {
 
       <div class="auth-form" id="login-form">
         <div class="input-group">
-          <label>이메일</label>
-          <input type="email" class="input" id="login-email" placeholder="이메일을 입력하세요" autocomplete="email" />
+          <label>아이디</label>
+          <input type="text" class="input" id="login-username" placeholder="아이디를 입력하세요" autocomplete="username" />
         </div>
         <div class="input-group">
           <label>비밀번호</label>
@@ -77,11 +77,11 @@ export function renderAuth() {
 }
 
 async function handleLogin() {
-  const email = $('#login-email').value.trim();
+  const username = $('#login-username').value.trim();
   const password = $('#login-password').value;
 
-  if (!email || !password) {
-    showToast('이메일과 비밀번호를 입력해주세요.', 'error');
+  if (!username || !password) {
+    showToast('아이디와 비밀번호를 입력해주세요.', 'error');
     return;
   }
 
@@ -90,7 +90,7 @@ async function handleLogin() {
   btn.textContent = '로그인 중...';
 
   try {
-    const res = await api.login(email, password);
+    const res = await api.login(username, password);
     if (res.success) {
       setSession(res.user);
 

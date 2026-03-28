@@ -43,13 +43,13 @@ const api = {
   },
 
   // === 인증 ===
-  login(email, password) {
-    return this.request('POST', 'login', { email, password });
+  login(username, password) {
+    return this.request('POST', 'login', { username, password });
   },
 
   // === 관리자: 사용자 관리 ===
-  adminAddUser(admin_id, email, password, nickname) {
-    return this.request('POST', 'adminAddUser', { admin_id, email, password, nickname });
+  adminAddUser(admin_id, username, password, nickname) {
+    return this.request('POST', 'adminAddUser', { admin_id, username, password, nickname });
   },
   adminDeleteUser(admin_id, user_id) {
     return this.request('POST', 'adminDeleteUser', { admin_id, user_id });
