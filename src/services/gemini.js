@@ -1,7 +1,7 @@
 // === Gemini API Service ===
 // 프론트엔드에서 직접 Gemini API를 호출하여 이미지에서 단어 추출
 
-const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent';
+const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 const EXTRACTION_PROMPT = `당신은 영어 단어장 이미지 분석 전문가입니다.
 이 이미지는 영어 단어 학습 교재의 페이지 사진입니다.
