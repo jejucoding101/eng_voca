@@ -92,7 +92,7 @@ export async function extractWordsFromImages(images, apiKey) {
 
 // === AI 스토리 생성 ===
 const STORY_PROMPT = `당신은 영어 교육 전문가입니다.
-아래 영어 단어 목록을 **모두** 활용하여 짧은 영어 이야기를 만들어주세요.
+아래 영어 단어 목록을 모두 활용하여 짧은 영어 이야기를 만들어주세요.
 
 규칙:
 1. 5~8개의 문장으로 구성
@@ -101,6 +101,11 @@ const STORY_PROMPT = `당신은 영어 교육 전문가입니다.
 4. 문장이 하나의 이야기로 자연스럽게 이어져야 함
 5. 중학생~고등학생 수준의 문장 난이도
 6. 각 문장에 한국어 해석도 함께 제공
+
+절대 지켜야 할 사항:
+- JSON 문자열 값 안에 마크다운(**, *, _, #)을 절대 사용하지 마세요
+- 단어를 강조하거나 볼드체로 감싸지 마세요
+- 순수한 텍스트만 사용하세요
 
 응답 형식 (JSON 배열만 반환, 다른 텍스트 없이):
 [
@@ -139,12 +144,19 @@ export async function generateStoryFromWords(words, apiKey) {
   if (!text) throw new Error('API 응답에서 텍스트를 찾을 수 없습니다.');
 
   try {
-    const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    // 마크다운 코드블록 제거 + 볼드/이탤릭 마크다운 제거
+    let cleaned = text
+      .replace(/```json\n?/g, '')
+      .replace(/```\n?/g, '')
+      .replace(/\*\*(.*?)\*\*/g, '$1')  // **bold** → bold
+      .replace(/\*(.*?)\*/g, '$1')       // *italic* → italic
+      .trim();
+
     const sentences = JSON.parse(cleaned);
     if (!Array.isArray(sentences)) throw new Error('배열이 아닙니다');
     return sentences.map(s => ({
-      en: s.en || '',
-      ko: s.ko || ''
+      en: (s.en || '').replace(/\*\*/g, '').replace(/\*/g, ''),
+      ko: (s.ko || '').replace(/\*\*/g, '').replace(/\*/g, '')
     })).filter(s => s.en.length > 0);
   } catch (e) {
     console.error('Story parse error:', text);
