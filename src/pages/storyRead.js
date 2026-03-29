@@ -67,7 +67,7 @@ async function generateAndSaveStory(setId, setName, user, apiKey) {
 
   try {
     // 단어 가져오기
-    const wordsRes = await api.getWords(setId, user.user_id);
+    const wordsRes = await api.getWords(user.user_id, setId);
     if (!wordsRes.success || !wordsRes.data || wordsRes.data.length === 0) {
       hideLoader();
       $('#story-content').innerHTML = `
