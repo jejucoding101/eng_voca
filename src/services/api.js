@@ -2,7 +2,7 @@
 // Google Apps Script Web App과 통신
 
 // 사용자가 설정에서 변경 가능
-const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbyqKWJXaCwzqjSroRbF8eKtWK-lyz4b48ATJSyzh5y6OnJcxcwlSaZQUrR3oR4C48aO/exec';
+const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbx69PYegtpdvikRvwqeVqImMx7JlB4Y_vUu1U4rizp0mqtnSWI7oyn8vIA7ILx4Z5-e/exec';
 let GAS_URL = localStorage.getItem('vocasnap_gas_url') || DEFAULT_GAS_URL;
 
 export function setGasUrl(url) {
