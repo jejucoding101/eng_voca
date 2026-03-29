@@ -15,7 +15,8 @@ export const ROUTES = {
   STATS: 'stats',
   PROFILE: 'profile',
   SETTINGS: 'settings',
-  ADMIN: 'admin'
+  ADMIN: 'admin',
+  STORY_READ: 'story'
 };
 
 export const STUDY_MODES = [

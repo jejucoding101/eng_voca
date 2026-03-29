@@ -20,6 +20,7 @@ import { renderStats } from './pages/stats.js';
 import { renderProfile } from './pages/profile.js';
 import { renderSettings } from './pages/settings.js';
 import { renderAdmin } from './pages/admin.js';
+import { renderStoryRead } from './pages/storyRead.js';
 
 // Auth guard
 router.beforeEach((route) => {
@@ -56,7 +57,8 @@ router
   .on(ROUTES.STATS, () => renderStats())
   .on(ROUTES.PROFILE, () => renderProfile())
   .on(ROUTES.SETTINGS, () => renderSettings())
-  .on(ROUTES.ADMIN, () => renderAdmin());
+  .on(ROUTES.ADMIN, () => renderAdmin())
+  .on(ROUTES.STORY_READ, (p) => renderStoryRead(p));
 
 // Start
 router.start();

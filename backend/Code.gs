@@ -2,11 +2,12 @@
  * VocaSnap - Google Apps Script Backend
  * 
  * [시트 구성]
- * 1. Users: user_id, email, password_hash, nickname, role, gemini_api_key, total_score, current_streak, max_streak, level, last_study_date, joined_date
+ * 1. Users: user_id, username, password_hash, nickname, role, gemini_api_key, total_score, current_streak, max_streak, level, last_study_date, joined_date
  * 2. WordSets: set_id, user_id, set_name, created_date, word_count
  * 3. Words: word_id, set_id, user_id, word, pronunciation, part_of_speech, meaning_ko, example_sentence, derivatives
  * 4. Progress: progress_id, user_id, word_id, correct_count, wrong_count, mastery_level, ease_factor, interval_days, next_review_date, last_studied
  * 5. StudyLog: log_id, user_id, study_mode, word_count, correct_count, score_earned, duration_sec, study_date
+ * 6. Stories: story_id, set_id, user_id, title, sentences_json, created_date
  */
 
 const SHEET_USERS = 'Users';
@@ -14,6 +15,7 @@ const SHEET_WORDSETS = 'WordSets';
 const SHEET_WORDS = 'Words';
 const SHEET_PROGRESS = 'Progress';
 const SHEET_STUDYLOG = 'StudyLog';
+const SHEET_STORIES = 'Stories';
 
 const CACHE_TTL = 60;
 
@@ -46,6 +48,7 @@ function handleRequest(e, method) {
         case 'getUserProfile': response = getUserProfile(e.parameter); break;
         case 'getApiKey': response = getApiKeyAction(e.parameter); break;
         case 'adminGetUsers': response = adminGetUsers(e.parameter); break;
+        case 'getStory': response = getStory(e.parameter); break;
       }
     } else if (method === 'POST') {
       switch(action) {
@@ -58,6 +61,7 @@ function handleRequest(e, method) {
         case 'updateProgress': response = updateProgressAction(payload); break;
         case 'batchUpdateProgress': response = batchUpdateProgress(payload); break;
         case 'saveStudyLog': response = saveStudyLogAction(payload); break;
+        case 'saveStory': response = saveStoryAction(payload); break;
         default: response = { success: false, message: 'Invalid action: ' + action };
       }
     }
@@ -83,7 +87,8 @@ function setupSheets() {
     { name: SHEET_WORDSETS, headers: ['set_id','user_id','set_name','created_date','word_count'] },
     { name: SHEET_WORDS, headers: ['word_id','set_id','user_id','word','pronunciation','part_of_speech','meaning_ko','example_sentence','derivatives'] },
     { name: SHEET_PROGRESS, headers: ['progress_id','user_id','word_id','correct_count','wrong_count','mastery_level','ease_factor','interval_days','next_review_date','last_studied'] },
-    { name: SHEET_STUDYLOG, headers: ['log_id','user_id','study_mode','word_count','correct_count','score_earned','duration_sec','study_date'] }
+    { name: SHEET_STUDYLOG, headers: ['log_id','user_id','study_mode','word_count','correct_count','score_earned','duration_sec','study_date'] },
+    { name: SHEET_STORIES, headers: ['story_id','set_id','user_id','title','sentences_json','created_date'] }
   ];
 
   sheets.forEach(s => {
@@ -663,6 +668,77 @@ function getUserProfile(params) {
         const today = new Date().toISOString().split('T')[0];
         return progress.filter(p => p.next_review_date && p.next_review_date <= today).length;
       })()
+    }
+  };
+}
+
+// ================================================================
+// 스토리 저장/조회
+// ================================================================
+function saveStoryAction(payload) {
+  const { user_id, set_id, title, sentences } = payload;
+  if (!user_id || !set_id || !sentences) return { success: false, message: '필수 정보가 누락되었습니다.' };
+
+  // 기존 스토리가 있으면 업데이트
+  const stories = getSheetData(SHEET_STORIES);
+  const existing = stories.find(s => s.set_id === set_id && s.user_id === user_id);
+
+  if (existing) {
+    const sheet = getSheet(SHEET_STORIES);
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+    const titleCol = headers.indexOf('title') + 1;
+    const jsonCol = headers.indexOf('sentences_json') + 1;
+    const dateCol = headers.indexOf('created_date') + 1;
+
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === existing.story_id) {
+        sheet.getRange(i + 1, titleCol).setValue(title || '');
+        sheet.getRange(i + 1, jsonCol).setValue(JSON.stringify(sentences));
+        sheet.getRange(i + 1, dateCol).setValue(new Date().toISOString());
+        break;
+      }
+    }
+    invalidateCache(SHEET_STORIES);
+    return { success: true, message: '스토리가 업데이트되었습니다.', story_id: existing.story_id };
+  }
+
+  const storyId = generateId('STR');
+  const sheet = getSheet(SHEET_STORIES);
+  sheet.appendRow([
+    storyId, set_id, user_id,
+    title || '',
+    JSON.stringify(sentences),
+    new Date().toISOString()
+  ]);
+  invalidateCache(SHEET_STORIES);
+  return { success: true, message: '스토리가 저장되었습니다.', story_id: storyId };
+}
+
+function getStory(params) {
+  const { set_id, user_id } = params;
+  if (!set_id || !user_id) return { success: false, message: '필수 파라미터가 누락되었습니다.' };
+
+  const stories = getSheetData(SHEET_STORIES);
+  const story = stories.find(s => s.set_id === set_id && s.user_id === user_id);
+
+  if (!story) return { success: true, data: null };
+
+  let sentences = [];
+  try {
+    sentences = JSON.parse(story.sentences_json);
+  } catch(e) {
+    sentences = [];
+  }
+
+  return {
+    success: true,
+    data: {
+      story_id: story.story_id,
+      set_id: story.set_id,
+      title: story.title,
+      sentences: sentences,
+      created_date: story.created_date
     }
   };
 }

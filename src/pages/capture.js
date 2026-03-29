@@ -3,7 +3,7 @@ import { $, getSession, getApiKey, showToast, showLoader, hideLoader } from '../
 import { router } from '../utils/router.js';
 import { ROUTES } from '../utils/constants.js';
 import { renderNav } from '../components/navbar.js';
-import { extractWordsFromImages } from '../services/gemini.js';
+import { extractWordsFromImages, generateStoryFromWords } from '../services/gemini.js';
 import api from '../services/api.js';
 
 let capturedImages = [];
@@ -138,17 +138,31 @@ async function handleExtract() {
     // 서버에 저장
     const user = getSession();
     const saveRes = await api.saveWordSet(user.user_id, setName, words);
-    hideLoader();
 
-    if (saveRes.success) {
-      showToast(`${words.length}개 단어가 추출되었습니다! 🎉`, 'success');
-      router.navigate(ROUTES.STUDY_SELECT, { set_id: saveRes.set_id, set_name: setName });
-    } else {
+    if (!saveRes.success) {
+      hideLoader();
       showToast(saveRes.message || '저장 중 오류가 발생했습니다.', 'error');
+      return;
     }
+
+    // 스토리 자동 생성
+    showLoader('AI가 이야기를 만들고 있어요... 📖');
+    try {
+      const sentences = await generateStoryFromWords(words, apiKey);
+      await api.saveStory(user.user_id, saveRes.set_id, `${setName} 이야기`, sentences);
+      hideLoader();
+      showToast(`${words.length}개 단어 추출 + 스토리 생성 완료! 🎉`, 'success');
+    } catch (storyErr) {
+      hideLoader();
+      console.error('Story generation failed:', storyErr);
+      showToast(`${words.length}개 단어 추출 완료! (스토리는 나중에 생성됩니다)`, 'success');
+    }
+
+    router.navigate(ROUTES.STUDY_SELECT, { set_id: saveRes.set_id, set_name: setName });
   } catch (e) {
     hideLoader();
     showToast('추출 실패: ' + e.message, 'error');
     console.error(e);
   }
 }
+

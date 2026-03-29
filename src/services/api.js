@@ -110,6 +110,14 @@ const api = {
   // === 초기화 ===
   setup() {
     return this.request('GET', 'setup');
+  },
+
+  // === 스토리 ===
+  saveStory(user_id, set_id, title, sentences) {
+    return this.request('POST', 'saveStory', { user_id, set_id, title, sentences });
+  },
+  getStory(set_id, user_id) {
+    return this.request('GET', 'getStory', { set_id, user_id });
   }
 };
 

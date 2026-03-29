@@ -19,9 +19,14 @@ export async function renderStudySelect(params = {}) {
       <p class="text-muted" style="font-size:var(--fs-sm);margin-top:var(--sp-sm)">학습 모드를 선택하세요</p>
     </div>
 
-    <button class="btn btn-secondary btn-full mb-xl" id="view-words-btn">
-      📖 단어 목록 보기
-    </button>
+    <div style="display:flex;gap:var(--sp-md);margin-bottom:var(--sp-xl)">
+      <button class="btn btn-secondary" id="view-words-btn" style="flex:1">
+        📖 단어 목록
+      </button>
+      <button class="btn btn-primary" id="story-btn" style="flex:1">
+        📖 AI 스토리
+      </button>
+    </div>
 
     <div class="study-select-grid stagger-children">
       ${STUDY_MODES.map(mode => `
@@ -39,6 +44,7 @@ export async function renderStudySelect(params = {}) {
 
   $('#back-btn').addEventListener('click', () => router.navigate(ROUTES.HOME));
   $('#view-words-btn').addEventListener('click', () => router.navigate(ROUTES.WORD_LIST, { set_id: setId, set_name: setName }));
+  $('#story-btn').addEventListener('click', () => router.navigate(ROUTES.STORY_READ, { set_id: setId, set_name: setName }));
 
   document.querySelectorAll('.study-mode-card').forEach(card => {
     card.addEventListener('click', () => {

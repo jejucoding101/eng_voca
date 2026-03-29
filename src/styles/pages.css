@@ -574,3 +574,90 @@
 }
 .admin-user-info h4 { font-size: var(--fs-base); font-weight: var(--fw-medium); }
 .admin-user-info p { font-size: var(--fs-xs); color: var(--text-secondary); }
+
+/* === Story Read Page === */
+.story-header {
+  margin-bottom: var(--sp-xl);
+}
+.story-header h2 {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+}
+.story-title-card {
+  background: linear-gradient(135deg, rgba(108,92,231,0.15) 0%, rgba(85,163,240,0.1) 100%);
+  border: 1px solid rgba(108, 92, 231, 0.3);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-xl);
+  margin-bottom: var(--sp-xl);
+  text-align: center;
+}
+.story-title-card h3 {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  margin-bottom: var(--sp-xs);
+}
+.story-sentences {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+  margin-bottom: var(--sp-xl);
+}
+.story-sentence-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-lg);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.story-sentence-card:hover {
+  border-color: rgba(108, 92, 231, 0.4);
+  background: var(--bg-card-hover);
+}
+.story-sentence-card:active {
+  transform: scale(0.99);
+}
+.story-sentence-num {
+  min-width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  color: white;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.story-sentence-body {
+  flex: 1;
+  min-width: 0;
+}
+.story-sentence-en {
+  font-size: var(--fs-base);
+  font-weight: var(--fw-medium);
+  line-height: 1.6;
+  word-break: break-word;
+}
+.story-sentence-ko {
+  font-size: var(--fs-sm);
+  color: var(--accent-secondary);
+  margin-top: var(--sp-sm);
+  line-height: 1.5;
+  padding-top: var(--sp-sm);
+  border-top: 1px dashed rgba(162, 155, 254, 0.2);
+}
+.story-sentence-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-xs);
+  flex-shrink: 0;
+}
+.story-bottom-actions {
+  padding-bottom: var(--sp-3xl);
+}

@@ -89,3 +89,65 @@ export async function extractWordsFromImages(images, apiKey) {
     throw new Error('추출 결과 파싱 실패: ' + e.message);
   }
 }
+
+// === AI 스토리 생성 ===
+const STORY_PROMPT = `당신은 영어 교육 전문가입니다.
+아래 영어 단어 목록을 **모두** 활용하여 짧은 영어 이야기를 만들어주세요.
+
+규칙:
+1. 5~8개의 문장으로 구성
+2. 모든 단어가 최소 1번은 사용되어야 함
+3. 각 단어는 주요 의미(사전적 뜻)에 맞게 사용
+4. 문장이 하나의 이야기로 자연스럽게 이어져야 함
+5. 중학생~고등학생 수준의 문장 난이도
+6. 각 문장에 한국어 해석도 함께 제공
+
+응답 형식 (JSON 배열만 반환, 다른 텍스트 없이):
+[
+  { "en": "영어 문장", "ko": "한국어 해석" }
+]`;
+
+export async function generateStoryFromWords(words, apiKey) {
+  if (!apiKey) throw new Error('Gemini API 키가 필요합니다.');
+  if (!words || words.length === 0) throw new Error('단어가 필요합니다.');
+
+  const wordList = words.map(w => `${w.word} (${w.meaning_ko})`).join(', ');
+  const prompt = STORY_PROMPT + `\n\n단어 목록:\n${wordList}`;
+
+  const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+
+  const response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 4096,
+        responseMimeType: 'application/json'
+      }
+    })
+  });
+
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.error?.message || `API 오류: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('API 응답에서 텍스트를 찾을 수 없습니다.');
+
+  try {
+    const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const sentences = JSON.parse(cleaned);
+    if (!Array.isArray(sentences)) throw new Error('배열이 아닙니다');
+    return sentences.map(s => ({
+      en: s.en || '',
+      ko: s.ko || ''
+    })).filter(s => s.en.length > 0);
+  } catch (e) {
+    console.error('Story parse error:', text);
+    throw new Error('스토리 파싱 실패: ' + e.message);
+  }
+}
