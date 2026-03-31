@@ -1,28 +1,31 @@
 /* ============================================
-   ENG_VOCA — Animations
+   VocaSnap — Animations
+   "Warm Editorial Minimalism"
    ============================================ */
+
+/* ── Keyframes ── */
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
 @keyframes slideDown {
-  from { transform: translateY(-20px); opacity: 0; }
+  from { transform: translateY(-16px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
 
 @keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
+  from { transform: translateY(16px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
 
 @keyframes slideInRight {
-  from { transform: translateX(30px); opacity: 0; }
+  from { transform: translateX(24px); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
 
 @keyframes slideInLeft {
-  from { transform: translateX(-30px); opacity: 0; }
+  from { transform: translateX(-24px); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
 
@@ -37,24 +40,24 @@
 }
 
 @keyframes scaleIn {
-  from { transform: scale(0.9); opacity: 0; }
+  from { transform: scale(0.95); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
 
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-8px); }
 }
 
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  20%, 60% { transform: translateX(-8px); }
-  40%, 80% { transform: translateX(8px); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
 }
 
 @keyframes pulse {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  50% { transform: scale(1.04); }
 }
 
 @keyframes flipIn {
@@ -74,27 +77,41 @@
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  50% { transform: translateY(-4px); }
 }
 
 @keyframes correctAnswer {
   0% { transform: scale(1); }
-  30% { transform: scale(1.15); }
-  60% { transform: scale(0.95); }
+  30% { transform: scale(1.08); }
+  60% { transform: scale(0.97); }
   100% { transform: scale(1); }
 }
 
 @keyframes wrongAnswer {
   0%, 100% { transform: translateX(0); }
-  10%, 50%, 90% { transform: translateX(-6px); }
-  30%, 70% { transform: translateX(6px); }
+  10%, 50%, 90% { transform: translateX(-5px); }
+  30%, 70% { transform: translateX(5px); }
 }
 
-/* Page transition */
-.page-enter { animation: slideUp 0.3s ease forwards; }
-.page-exit { animation: fadeOut 0.2s ease forwards; }
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 16px rgba(232, 168, 56, 0.1); }
+  50% { box-shadow: 0 0 24px rgba(232, 168, 56, 0.2); }
+}
 
-/* Card flip 3D */
+@keyframes lineReveal {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+/* ── Page transition ── */
+.page-enter {
+  animation: slideUp 0.35s var(--ease-out-expo) forwards;
+}
+.page-exit {
+  animation: fadeOut 0.2s ease forwards;
+}
+
+/* ── Card flip 3D ── */
 .flip-card {
   perspective: 1000px;
   cursor: pointer;
@@ -121,31 +138,31 @@
   transform: rotateY(180deg);
 }
 
-/* Swipe card */
+/* ── Swipe card ── */
 .swipe-card {
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition: transform 0.3s var(--ease-out-expo), opacity 0.3s ease;
   touch-action: pan-y;
 }
 .swipe-card.swiping {
   transition: none;
 }
 .swipe-card.swipe-left {
-  transform: translateX(-120%) rotate(-15deg);
+  transform: translateX(-120%) rotate(-12deg);
   opacity: 0;
 }
 .swipe-card.swipe-right {
-  transform: translateX(120%) rotate(15deg);
+  transform: translateX(120%) rotate(12deg);
   opacity: 0;
 }
 
-/* Quiz option */
+/* ── Quiz option ── */
 .quiz-option {
   transition: all var(--transition-fast);
 }
 .quiz-option.correct {
   background: var(--success-bg) !important;
   border-color: var(--success) !important;
-  animation: correctAnswer 0.5s ease;
+  animation: correctAnswer 0.5s var(--ease-out-expo);
 }
 .quiz-option.wrong {
   background: var(--error-bg) !important;
@@ -153,30 +170,35 @@
   animation: wrongAnswer 0.5s ease;
 }
 
-/* Matching card */
+/* ── Matching card ── */
 .match-card {
   transition: all var(--transition-fast);
 }
 .match-card.selected {
   border-color: var(--accent-primary);
-  box-shadow: var(--shadow-glow);
-  transform: scale(1.03);
+  box-shadow: 0 0 16px rgba(232, 168, 56, 0.15);
+  transform: scale(1.02);
 }
 .match-card.matched {
-  opacity: 0.3;
+  opacity: 0.25;
   pointer-events: none;
-  transform: scale(0.95);
+  transform: scale(0.96);
 }
 
-/* Skeleton loading */
+/* ── Skeleton loading ── */
 .skeleton {
-  background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-card-hover) 50%, var(--bg-card) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--bg-elevated) 25%,
+    var(--bg-surface) 50%,
+    var(--bg-elevated) 75%
+  );
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  animation: shimmer 1.8s ease-in-out infinite;
   border-radius: var(--radius-md);
 }
 
-/* Confetti particle */
+/* ── Confetti particle ── */
 .confetti-particle {
   position: fixed;
   pointer-events: none;
@@ -184,20 +206,23 @@
   z-index: 9999;
 }
 
-/* Float animation */
+/* ── Float animation ── */
 .float { animation: float 3s ease-in-out infinite; }
 
-/* Stagger children animation */
+/* ── Glow pulse ── */
+.glow-pulse { animation: glowPulse 2s ease-in-out infinite; }
+
+/* ── Stagger children animation ── */
 .stagger-children > * {
-  animation: slideUp 0.4s ease backwards;
+  animation: slideUp 0.4s var(--ease-out-expo) backwards;
 }
-.stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
-.stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
-.stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
-.stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
-.stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
-.stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
-.stagger-children > *:nth-child(7) { animation-delay: 0.35s; }
-.stagger-children > *:nth-child(8) { animation-delay: 0.4s; }
-.stagger-children > *:nth-child(9) { animation-delay: 0.45s; }
-.stagger-children > *:nth-child(10) { animation-delay: 0.5s; }
+.stagger-children > *:nth-child(1) { animation-delay: 0.04s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.08s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.12s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.16s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.2s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.24s; }
+.stagger-children > *:nth-child(7) { animation-delay: 0.28s; }
+.stagger-children > *:nth-child(8) { animation-delay: 0.32s; }
+.stagger-children > *:nth-child(9) { animation-delay: 0.36s; }
+.stagger-children > *:nth-child(10) { animation-delay: 0.4s; }
